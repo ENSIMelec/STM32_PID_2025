@@ -14,7 +14,7 @@ float angle_t2;
 /***********************************/
 
 /*Variable pour calcul des rampes de vitesse*/
-float Acc = 1000;   // acceleration linéaire
+float Acc = 800;   // acceleration linéaire
 float distance_lim; // distance limite
 
 float angle_initial = 0;

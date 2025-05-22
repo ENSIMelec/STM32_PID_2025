@@ -33,14 +33,16 @@ float angle_final = 0;
 
 /***********Etalonnage Encodeur 1m et 10 PI******/
 //float distance_encoder_gauche = 1000.0 / 5023.0;
-float distance_encoder_gauche = 1000.0 / 5000.0;
-float distance_encoder_droit = 1000.0 / 4815.0;
+float distance_encoder_gauche = 1000.0 / 4800.0;
+float distance_encoder_droit = 1000.0 / 4800.0;
 
 /**************************************/
 
 /********Coef Vitesse ******/
 float correction_vitesse = 1.032;
-float coefVitesseG = distance_encoder_gauche / dt * correction_vitesse;
+//float coefVitesseG = distance_encoder_gauche / dt * correction_vitesse;
+float coefVitesseG = distance_encoder_gauche / dt;
+
 float coefVitesseD = distance_encoder_droit / dt;
 /**************************/
 
@@ -81,7 +83,7 @@ float angle = 0;     // angle
 float distance = 0;  // distance
 /**********************************/
 
-/******Corection PID************/
+/******Correction PID************/
 float Output_PID_vitesse_G = 0; // Valeur sortante du PID vitesse moteur gauche, une PMW donc
 float Output_PID_vitesse_D = 0; // Valeur sortante du PID vitesse moteur droit, une PMW donc
 float Output_PID_angle = 0;     // Valeur sortante du PID angle
@@ -94,10 +96,10 @@ float Output_PID_distance = 0;  // Valeur sortante du PID distance
 // float Kp_angle = 3500, Ki_angle = 1600, Kd_angle = 0;       // coefficients PID angle
 // float Kp_distance = 20, Ki_distance = 1.5, Kd_distance = 0; // coefficients PID distance
 
-float Kp_G = 0.200, Ki_G = 0.1, Kd_G = 0.001;        // coefficients PID vitesse moteur gauche
-float Kp_D = 0.155, Ki_D = 0.01, Kd_D = 0.001;        // coefficients PID vitesse moteur droit
+float Kp_G = 0.210, Ki_G = 0.1, Kd_G = 0.002;        // coefficients PID vitesse moteur gauche
+float Kp_D = 0.153, Ki_D = 0.1, Kd_D = 0.002;        // coefficients PID vitesse moteur droit
 float Kp_angle = 3500, Ki_angle = 1600, Kd_angle = 0;       // coefficients PID angle
-float Kp_distance = 23, Ki_distance = 3, Kd_distance = 0; // coefficients PID distance
+float Kp_distance = 24, Ki_distance = 3, Kd_distance = 0.5; // coefficients PID distance
 /*********************************/
 
 /******Declaration des PID************/
@@ -193,8 +195,8 @@ void loop()
   // si on est pas en phase d'arret du lidar et qu'une nouvelle commande est disponible
   if (send_new_command_available && arret_lidar >= 2)
   {
-    encGauche_depart = encGauche.getTicks();
-    encDroit_depart = encDroit.getTicks();
+    // encGauche_depart = encGauche.getTicks();
+    // encDroit_depart = encDroit.getTicks();
 
     sendData(); // Envoi des données
     // Serial.print("G"); // Consigne de vitesse moteur Gauche
@@ -213,22 +215,24 @@ void loop()
     Serial.flush();
     send_new_command_available = false;
   }
-  if (distance_ok && angle_ok)
-  {
-    int ticksG = encGauche.getTicks();
-    int ticksD = encDroit.getTicks();
-    Serial.println("TICKS_RESULT:" + String(ticksG - encGauche_depart) + "," + String(ticksD - encDroit_depart));
+  // if (distance_ok && angle_ok)
+  // {
+  //   // int ticksG = encGauche.getTicks();
+  //   // int ticksD = encDroit.getTicks();
+  //   // Serial.print("G"); // ticks gauche
+  //   // Serial.println(String(ticksG - encGauche_depart));
+  //   // Serial.print("D"); // ticks droite
+  //   // Serial.println(String(ticksD - encDroit_depart));
 
-
-    // Pour ne pas répéter indéfiniment
-    distance_ok = false;
-    angle_ok = false;
-  }
+  //   // Pour ne pas répéter indéfiniment
+  //   distance_ok = false;
+  //   angle_ok = false;
+  // }
   if (Serial.available())
     {
         // Serial.println("[DEBUG] Donnée série détectée !");
         // Serial.flush();  // Pour s'assurer que ce message arrive bien
-        serialEvent();   // 💡 Appel obligatoire pour lire les commandes (ex: stopmove, restartmove)
+        serialEvent();   // Appel obligatoire pour lire les commandes (ex: stopmove, restartmove)
     }
 }
 /*************************************/

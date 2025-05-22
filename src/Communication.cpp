@@ -414,6 +414,11 @@ void sendData()
   // Serial.println(angle_ok);
   // Serial.print("Q"); // distance ok
   // Serial.println(distance_ok);
+  Serial.print("R");
+  Serial.println(encGauche.getTicks());
+  Serial.print("S");
+  Serial.println(encDroit.getTicks());
+
   // Serial.print("X"); // position x
   // Serial.println(x);
   // Serial.print("Y"); // position y
