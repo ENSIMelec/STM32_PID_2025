@@ -33,8 +33,8 @@ float angle_final = 0;
 
 /***********Etalonnage Encodeur 1m et 10 PI******/
 //float distance_encoder_gauche = 1000.0 / 5023.0;
-float distance_encoder_gauche = 1000.0 / 4800.0;
-float distance_encoder_droit = 1000.0 / 4800.0;
+float distance_encoder_gauche = 1000.0 / 5077.2;
+float distance_encoder_droit = 1000.0 / 5004.0;
 
 /**************************************/
 
@@ -69,6 +69,8 @@ int16_t encDroit_depart = 0;   // [MODIF] ticks init droit
 
 Encoder encGauche(CodGB, CodGA, TIM3, HALFQUAD, 250); // Pour plus de précision utiliser FULLQUAD (2x plus de ticks)
 Encoder encDroit(CodDB, CodDA, TIM2, HALFQUAD, 250);  //
+
+
 /***************************************/
 
 /*****Sauvegarde des positions*****/
@@ -96,10 +98,17 @@ float Output_PID_distance = 0;  // Valeur sortante du PID distance
 // float Kp_angle = 3500, Ki_angle = 1600, Kd_angle = 0;       // coefficients PID angle
 // float Kp_distance = 20, Ki_distance = 1.5, Kd_distance = 0; // coefficients PID distance
 
-float Kp_G = 0.210, Ki_G = 0.1, Kd_G = 0.002;        // coefficients PID vitesse moteur gauche
-float Kp_D = 0.153, Ki_D = 0.1, Kd_D = 0.002;        // coefficients PID vitesse moteur droit
+// float Kp_G = 0.22, Ki_G = 0.08, Kd_G = 0.00;        // coefficients PID vitesse moteur gauche
+// float Kp_D = 0.18, Ki_D = 0.08, Kd_D = 0.00;        // coefficients PID vitesse moteur droit
+// float Kp_angle = 3500, Ki_angle = 1600, Kd_angle = 300;       // coefficients PID angle
+// float Kp_distance = 20, Ki_distance = 1.5, Kd_distance = 0.5; // coefficients PID distance
+
+
+float Kp_G = 0.08, Ki_G = 0, Kd_G = 0;        // coefficients PID vitesse moteur gauche Kp_G = 0.08, Ki_G = 0, Kd_G = 0;
+float Kp_D = 0.08, Ki_D = 0, Kd_D = 0;        // coefficients PID vitesse moteur droit Kp_D = 0.08, Ki_D = 0, Kd_D = 0;
+
 float Kp_angle = 3500, Ki_angle = 1600, Kd_angle = 0;       // coefficients PID angle
-float Kp_distance = 24, Ki_distance = 3, Kd_distance = 0.5; // coefficients PID distance
+float Kp_distance = 25, Ki_distance = 2, Kd_distance = 0.5; // coefficients PID distance
 /*********************************/
 
 /******Declaration des PID************/

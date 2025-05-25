@@ -238,7 +238,7 @@ void asservCommandUSB(int argc, char **argv)
   {
     float angle_ = atof(argv[1]);
     newCommand = calculate_rotation(angle_);
-    newCommand.speed = 50;
+    newCommand.speed = 300;
     // rotate(newCommand);
     // newCommand.rotate_ok = true;
     newCommand.rotate_ok = true;
@@ -291,7 +291,29 @@ void asservCommandUSB(int argc, char **argv)
         // Serial.println("[DEBUG] Trop tôt pour reprendre (arret_lidar < 2)");
     }
 
+  }else if (!strcmp(argv[0], "resetticks"))
+  {
+    encDroit.resetTicks();
+    encGauche.resetTicks();
+    last_encGauche = 0;
+    last_encDroit = 0;
+    Serial.println("Z"); // indique que c'est bon
   }
+  else if (!strcmp(argv[0], "manu"))
+  {
+    if (!strcmp(argv[1], "droite"))
+    {
+        Output_PID_vitesse_D = atoi(argv[2]);  // moteur droit seulement
+        Serial.println("ok droite");
+    }
+    else if (!strcmp(argv[1], "gauche"))
+    {
+        Output_PID_vitesse_G = atoi(argv[2]);  // moteur gauche seulement
+        Serial.println("ok gauche");
+    }
+  }
+
+
 }
 /*************************************/
 /*************************************/
@@ -393,8 +415,8 @@ void sendData()
   // Serial.println(cmd_vitesse_G, 5);
   // Serial.print("H"); // Consigne de vitesse moteur Droit
   // Serial.println(cmd_vitesse_D, 5);
-  // Serial.print("I"); // angle mesurer
-  // Serial.println(angle, 5);
+  Serial.print("I"); // angle mesurer
+  Serial.println(angle, 5);
 
   // Serial.print("J"); // angle PID
   // Serial.println(Output_PID_angle);
@@ -419,10 +441,10 @@ void sendData()
   Serial.print("S");
   Serial.println(encDroit.getTicks());
 
-  // Serial.print("X"); // position x
-  // Serial.println(x);
-  // Serial.print("Y"); // position y
-  // Serial.println(y);
+  Serial.print("X"); // position x
+  Serial.println(x);
+  Serial.print("Y"); // position y
+  Serial.println(y);
 
   Update_IT = 0;
 }

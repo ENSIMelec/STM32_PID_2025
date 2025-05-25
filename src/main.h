@@ -11,9 +11,11 @@
 #define DIR2 PB3
 #define CodDB PA0 // codeur droit chanel B
 #define CodDA PA1 // codeur droit chanel A
-#define CodGB PB4
-#define CodGA PB5
-#define ARU PA14 // Arret d'urgence
+
+#define CodGB PB4 // codeur gauche chanel B
+#define CodGA PB5 // codeur gauche chanel A
+
+#define ARU PA14  // Arret d'urgence
 /******************/
 
 /******Mode********/
