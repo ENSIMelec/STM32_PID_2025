@@ -160,6 +160,16 @@ bool calculate_distance_time(float distance_, float Vmax_)
         distance_t1 = VMax / Acc;                                                         // temps de fin de la rampe d'accélération
         distance_t2 = (distance_ - Acc * distance_t1 * distance_t1) / VMax + distance_t1; // temps de début de la rampe de décélération
     }
+
+    Serial.println("[DEBUG] --- Calcul des temps de déplacement ---");
+    Serial.print("distance = "); Serial.println(distance_);
+    Serial.print("VMax = "); Serial.println(VMax);
+    Serial.print("Acc = "); Serial.println(Acc);
+    Serial.print("distance_lim = "); Serial.println(distance_lim);
+    Serial.print("distance_t1 = "); Serial.println(distance_t1);
+    Serial.print("distance_t2 = "); Serial.println(distance_t2);
+    Serial.print("total time = "); Serial.println(distance_t1 + distance_t2);
+
     return true;
 }
 /*************************************************/
@@ -305,8 +315,10 @@ float get_angle_tf()
 /****OTBTENIR TEMPS FIN DEPLACEMENT DISTANCE******/
 /*************************************************/
 float get_distance_tf()
-{
-    return (distance_t1 + distance_t2) / dt + 10;
+{ 
+    float tf = distance_t1 + distance_t2;  
+    float marge = 1.3;
+    return tf / dt * marge + 10;
 }
 /*************************************************/
 /*************************************************/

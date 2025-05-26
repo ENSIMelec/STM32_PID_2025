@@ -55,6 +55,8 @@ calculateMovement(float targetX, float targetY)
   result.distance_initial = distance;                              // distance initial = distance actuel
   result.angle_final = atan2(deltaY, deltaX);                      // calcul de l'angle final
   result.distance_final = sqrt(deltaX * deltaX + deltaY * deltaY); // calcul de la distance final
+  Serial.print("[GOTO] Distance demandée : ");
+  Serial.println(result.distance_final);
   return result;                                                   // retourne la structure
 }
 /****************************************************/
@@ -68,6 +70,8 @@ bool goTo(MovementResult mov)
 {
   calculate_distance_time(mov.distance_final, mov.speed); // calcul du temps pour la distance
   calculate_angle_time(mov.angle_final, mov.speed);       // calcul du temps pour l'angle
+  angle_ok = false;
+  distance_ok = false;
   mov.goto_ok = true;                                     // on indique le type de mouvement
   return true;
 }

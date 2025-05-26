@@ -204,9 +204,6 @@ void loop()
   // si on est pas en phase d'arret du lidar et qu'une nouvelle commande est disponible
   if (send_new_command_available && arret_lidar >= 2)
   {
-    // encGauche_depart = encGauche.getTicks();
-    // encDroit_depart = encDroit.getTicks();
-
     sendData(); // Envoi des données
     // Serial.print("G"); // Consigne de vitesse moteur Gauche
     // Serial.println(cmd_vitesse_G, 5);
@@ -224,19 +221,7 @@ void loop()
     Serial.flush();
     send_new_command_available = false;
   }
-  // if (distance_ok && angle_ok)
-  // {
-  //   // int ticksG = encGauche.getTicks();
-  //   // int ticksD = encDroit.getTicks();
-  //   // Serial.print("G"); // ticks gauche
-  //   // Serial.println(String(ticksG - encGauche_depart));
-  //   // Serial.print("D"); // ticks droite
-  //   // Serial.println(String(ticksD - encDroit_depart));
 
-  //   // Pour ne pas répéter indéfiniment
-  //   distance_ok = false;
-  //   angle_ok = false;
-  // }
   if (Serial.available())
     {
         // Serial.println("[DEBUG] Donnée série détectée !");

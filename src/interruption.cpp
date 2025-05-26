@@ -106,6 +106,27 @@ void Update_IT_callback(void)
     && angle_ok && !distance_ok)
 
   {
+    Serial.println("[DEBUG] Vérification fin de distance");
+    Serial.print("distance_final = ");
+    Serial.println(distance_final);
+    Serial.print("distance = ");
+    Serial.println(distance);
+    Serial.print("distance erreur = ");
+    Serial.println(abs(distance_final - distance));
+
+    Serial.print("vitesse moyenne = ");
+    Serial.println((vitesse_G + vitesse_D) / 2.0);
+
+    Serial.print("interrupt_tick = ");
+    Serial.println(interrupt_tick);
+    Serial.print("get_distance_tf() = ");
+    Serial.println(get_distance_tf());
+
+    Serial.print("angle_ok = ");
+    Serial.println(angle_ok);
+    Serial.print("distance_ok = ");
+    Serial.println(distance_ok);
+
 
     distance_ok = true;            // accepte une nouvelle commande de distance
     arret_lidar++;                 // on incrémente le nombre de fois ou on a pas reçu de commande
@@ -116,6 +137,8 @@ void Update_IT_callback(void)
     send_new_command_available = true; // on envoie un message pour dire qu'on est prêt à recevoir une nouvelle commande
     reset_time_distance();             // on remet les temps des rampes à 0
     interrupt_tick = 0;                // on remet le temps actuelle à 0
+    Serial.println("[DEBUG] CONDITION DE FIN DE DISTANCE REMPLIE");
+
   }
   else
     PID_distance.Compute(); // on calcule la sortie du PID distance

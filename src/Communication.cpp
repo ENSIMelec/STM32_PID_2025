@@ -162,13 +162,41 @@ void asservCommandUSB(int argc, char **argv)
       }
     }
   }
+  else if (!strcmp(argv[0], "reboot"))
+  {
+      digitalWrite(LED_BUILTIN, LOW);
+      delay(500);
+      HAL_NVIC_SystemReset(); // redèmare le programme
+  }
   else if (!strcmp(argv[0], "reset"))
   {
     if (!strcmp(argv[1], "all"))
     {
-      digitalWrite(LED_BUILTIN, LOW);
-      delay(500);
-      HAL_NVIC_SystemReset(); // redèmare le programme
+      x = 0.0;
+      y = 0.0;
+      angle = 0.0;
+      distance = 0.0;
+
+      Output_PID_distance = 0;
+      Output_PID_angle = 0;
+      Output_PID_vitesse_G = 0;
+      Output_PID_vitesse_D = 0;
+
+      vitesse_G = 0;
+      vitesse_D = 0;
+
+      encGauche.resetTicks();
+      encDroit.resetTicks();
+      last_encGauche = 0;
+      last_encDroit = 0;
+
+      angle_ok = true;
+      distance_ok = true;
+      arret_lidar = 2;
+      newCommand = {}; // si c’est une struct C simple
+
+      Serial.println("Z"); // indique que le reset est terminé
+      
     }
     else if (argv[1] == "angle")
     {
@@ -217,7 +245,7 @@ void asservCommandUSB(int argc, char **argv)
 
     if (argc < 3 || !(distance_ok && angle_ok) || arret_lidar < 2)
     {
-      Serial.println("Erreur");
+      Serial.println("!Erreur");
       return;
     }
     float x = atof(argv[1]);
@@ -310,6 +338,16 @@ void asservCommandUSB(int argc, char **argv)
     {
         Output_PID_vitesse_G = atoi(argv[2]);  // moteur gauche seulement
         Serial.println("ok gauche");
+    }
+  }
+  else if (!strcmp(argv[0], "get"))
+  {
+    if (!strcmp(argv[1], "x"))
+    {
+        Serial.println(x);
+    }else if (!strcmp(argv[1], "y"))
+    {
+        Serial.println(y);
     }
   }
 
