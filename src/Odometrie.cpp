@@ -161,14 +161,15 @@ bool calculate_distance_time(float distance_, float Vmax_)
         distance_t2 = (distance_ - Acc * distance_t1 * distance_t1) / VMax + distance_t1; // temps de début de la rampe de décélération
     }
 
-    Serial.println("[DEBUG] --- Calcul des temps de déplacement ---");
-    Serial.print("distance = "); Serial.println(distance_);
-    Serial.print("VMax = "); Serial.println(VMax);
-    Serial.print("Acc = "); Serial.println(Acc);
-    Serial.print("distance_lim = "); Serial.println(distance_lim);
-    Serial.print("distance_t1 = "); Serial.println(distance_t1);
-    Serial.print("distance_t2 = "); Serial.println(distance_t2);
-    Serial.print("total time = "); Serial.println(distance_t1 + distance_t2);
+    // Serial.println("[DEBUG] --- Calcul des temps de déplacement ---");
+    // Serial.print("distance = "); Serial.println(distance_);
+    // Serial.print("VMax = "); Serial.println(VMax);
+    // Serial.print("Acc = "); Serial.println(Acc);
+    // Serial.print("distance_lim = "); Serial.println(distance_lim);
+    // Serial.print("distance_t1 = "); Serial.println(distance_t1);
+    // Serial.print("distance_t2 = "); Serial.println(distance_t2);
+    // Serial.print("total time = "); Serial.println(distance_t1 + distance_t2);
+    delay(5);
 
     return true;
 }
@@ -305,7 +306,9 @@ bool reset_time_distance()
 /*************************************************/
 float get_angle_tf()
 {
-    return (angle_t1 + angle_t2) / dt + 10;
+    float tf = (angle_t1 + angle_t2);
+    float marge = 1.5;
+    return tf / dt * marge + 10;
 }
 /*************************************************/
 /*************************************************/
@@ -317,7 +320,7 @@ float get_angle_tf()
 float get_distance_tf()
 { 
     float tf = distance_t1 + distance_t2;  
-    float marge = 1.3;
+    float marge = 2;
     return tf / dt * marge + 10;
 }
 /*************************************************/
@@ -327,21 +330,21 @@ float get_distance_tf()
 /*************************************************/
 /********DECELERATION SI DETECTION****************/
 /*************************************************/
-// void obstacle_detection()
-// {
-//     float t = interrupt_tick * dt;
-//     if (t >= (distance_t1 + distance_t2))
-//         return;
-//     if (t < distance_t1)
-//     {
-//         distance_t1 = interrupt_tick * dt;
-//         distance_t2 = distance_t1;
-//         VMax = Acc * distance_t1;
-//         return;
-//     }
-//     distance_t2 = interrupt_tick * dt;
-//     newCommand.distance_initial = Acc * distance_t1 * distance_t1 / 2 - Acc * (distance_t1) * (distance_t1) / 2 + VMax * (distance_t2);
-// }
+void obstacle_detection()
+{
+    float t = interrupt_tick * dt;
+    if (t >= (distance_t1 + distance_t2))
+        return;
+    if (t < distance_t1)
+    {
+        distance_t1 = interrupt_tick * dt;
+        distance_t2 = distance_t1;
+        VMax = Acc * distance_t1;
+        return;
+    }
+    distance_t2 = interrupt_tick * dt;
+    newCommand.distance_initial = Acc * distance_t1 * distance_t1 / 2 - Acc * (distance_t1) * (distance_t1) / 2 + VMax * (distance_t2);
+}
 
 // void obstacle_detection()
 // {
@@ -378,44 +381,44 @@ float get_distance_tf()
 // }
 
 
-void obstacle_detection()
-{
-    float t = interrupt_tick * dt;
-    // Serial.println("[DEBUG] obstacle_detection appelée");
-    // Serial.flush();
+// void obstacle_detection()
+// {
+//     float t = interrupt_tick * dt;
+//     Serial.println("[DEBUG] obstacle_detection appelée");
+//     // Serial.flush();
 
-    if (t >= (distance_t1 + distance_t2))
-        return;
+//     if (t >= (distance_t1 + distance_t2))
+//         return;
 
-    if (t < distance_t1)
-    {
-        distance_t1 = t;
-        distance_t2 = t;
-        VMax = Acc * t;
-    }
-    else
-    {
-        distance_t2 = t;
-        // Serial.println("[DEBUG] Distance mesurée à l’arrêt (odométrie) : ");
-        // Serial.println(distance);
-        newCommand.distance_initial = distance;
+//     if (t < distance_t1)
+//     {
+//         distance_t1 = t;
+//         distance_t2 = t;
+//         VMax = Acc * t;
+//     }
+//     else
+//     {
+//         distance_t2 = t;
+//         // Serial.println("[DEBUG] Distance mesurée à l’arrêt (odométrie) : ");
+//         // Serial.println(distance);
+//         newCommand.distance_initial = distance;
         
-    }
-    arret_lidar=2;
-    // Choisir le type de mouvement
-    if (newCommand.goto_ok)
-        commande_en_pause = GOTO;
-    else if (newCommand.moveof_ok)
-        commande_en_pause = MOVEOF;
-    else if (newCommand.rotate_ok)
-        commande_en_pause = ROTATE;
-    else
-        commande_en_pause = AUCUNE;
+//     }
+//     arret_lidar=2;
+//     // Choisir le type de mouvement
+//     if (newCommand.goto_ok)
+//         commande_en_pause = GOTO;
+//     else if (newCommand.moveof_ok)
+//         commande_en_pause = MOVEOF;
+//     else if (newCommand.rotate_ok)
+//         commande_en_pause = ROTATE;
+//     else
+//         commande_en_pause = AUCUNE;
 
-    // Serial.print("[DEBUG] commande_en_pause = ");
-    // Serial.println(commande_en_pause);
-    // Serial.flush();
-}
+//     // Serial.print("[DEBUG] commande_en_pause = ");
+//     // Serial.println(commande_en_pause);
+//     // Serial.flush();
+// }
 
 
 /************************************************/
@@ -435,44 +438,50 @@ void obstacle_detection()
 
 void after_obstacle_detection(void)
 {
-    // Serial.println("[DEBUG] after_obstacle_detection appelée");
-    // Serial.flush();
-
-    if (commande_en_pause == GOTO)
-    {
-        //Serial.println("[DEBUG] Reprise d’un goto");
-        calculate_angle_time(newCommand.angle_final, VMax);
-        float distance_restante = newCommand.distance_final - newCommand.distance_initial;
-        calculate_distance_time(distance_restante, VMax);
-        // Serial.print("[DEBUG] Distance restante à parcourir : ");
-        // Serial.println(distance_restante);
-
-        newCommand.goto_ok = true;
-    }
-    else if (commande_en_pause == MOVEOF)
-    {
-        //Serial.println("[DEBUG] Reprise d’un moveof");
-        calculate_angle_time(newCommand.angle_final, VMax);
-        float distance_restante = newCommand.distance_final - newCommand.distance_initial;
-        calculate_distance_time(distance_restante, VMax);
-        // Serial.print("[DEBUG] Distance restante à parcourir : ");
-        // Serial.println(distance_restante);
-        newCommand.moveof_ok = true;
-        
-    }
-    else if (commande_en_pause == ROTATE)
-    {
-        //Serial.println("[DEBUG] Reprise d’un rotate");
-        calculate_angle_time(newCommand.angle_final, VMax);
-        newCommand.rotate_ok = true;
-    }
-    else
-    {
-        // Serial.println("[DEBUG] Rien à reprendre (AUCUNE)");
-    }
-
-    commande_en_pause = AUCUNE;
+    calculate_angle_time(newCommand.angle_final, VMax);
+    calculate_distance_time(newCommand.distance_final - newCommand.distance_initial, VMax);
+    newCommand.goto_ok = true;
 }
+// void after_obstacle_detection(void)
+// {
+//     // Serial.println("[DEBUG] after_obstacle_detection appelée");
+//     // Serial.flush();
+
+//     if (commande_en_pause == GOTO)
+//     {
+//         //Serial.println("[DEBUG] Reprise d’un goto");
+//         calculate_angle_time(newCommand.angle_final, VMax);
+//         float distance_restante = newCommand.distance_final - newCommand.distance_initial;
+//         calculate_distance_time(distance_restante, VMax);
+//         // Serial.print("[DEBUG] Distance restante à parcourir : ");
+//         // Serial.println(distance_restante);
+
+//         newCommand.goto_ok = true;
+//     }
+//     else if (commande_en_pause == MOVEOF)
+//     {
+//         //Serial.println("[DEBUG] Reprise d’un moveof");
+//         calculate_angle_time(newCommand.angle_final, VMax);
+//         float distance_restante = newCommand.distance_final - newCommand.distance_initial;
+//         calculate_distance_time(distance_restante, VMax);
+//         // Serial.print("[DEBUG] Distance restante à parcourir : ");
+//         // Serial.println(distance_restante);
+//         newCommand.moveof_ok = true;
+        
+//     }
+//     else if (commande_en_pause == ROTATE)
+//     {
+//         //Serial.println("[DEBUG] Reprise d’un rotate");
+//         calculate_angle_time(newCommand.angle_final, VMax);
+//         newCommand.rotate_ok = true;
+//     }
+//     else
+//     {
+//         // Serial.println("[DEBUG] Rien à reprendre (AUCUNE)");
+//     }
+
+//     commande_en_pause = AUCUNE;
+// }
 
 
 /************************************************/

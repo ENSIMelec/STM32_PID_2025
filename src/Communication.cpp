@@ -172,10 +172,17 @@ void asservCommandUSB(int argc, char **argv)
   {
     if (!strcmp(argv[1], "all"))
     {
-      x = 0.0;
-      y = 0.0;
-      angle = 0.0;
-      distance = 0.0;
+      x = 0;
+      y = 0;
+      angle = 0;
+      distance = 0;
+
+      distance_final = 0;
+      angle_final = 0;
+      reset_last_distance();
+
+      cmd_distance = 0;
+      cmd_angle = 0;
 
       Output_PID_distance = 0;
       Output_PID_angle = 0;
@@ -190,12 +197,31 @@ void asservCommandUSB(int argc, char **argv)
       last_encGauche = 0;
       last_encDroit = 0;
 
-      angle_ok = true;
-      distance_ok = true;
-      arret_lidar = 2;
-      newCommand = {}; // si c’est une struct C simple
+      distance_ok = false;
+      angle_ok = false;
 
-      Serial.println("Z"); // indique que le reset est terminé
+      reset_time_angle();
+      reset_time_distance();
+
+      change_PID_mode(4);
+
+      arret_lidar = 2;
+      
+      newCommand.goto_ok = false;
+      newCommand.rotate_ok = false;
+      newCommand.distance_final = 0;
+      newCommand.distance_initial = 0;
+      newCommand.angle_final = 0;
+
+      // Serial.println("DEBUG RESET:");
+      // Serial.println(distance_ok);
+      // Serial.println(angle_ok);
+      // Serial.println(cmd_distance);
+      // Serial.println(distance_final);
+      // Serial.flush();
+
+
+      Serial.println("Z reset"); // indique que le reset est terminé
       
     }
     else if (argv[1] == "angle")
@@ -245,9 +271,26 @@ void asservCommandUSB(int argc, char **argv)
 
     if (argc < 3 || !(distance_ok && angle_ok) || arret_lidar < 2)
     {
-      Serial.println("!Erreur");
+      // Serial.println("!Erreur");
+
+      if (argc < 3)
+        Serial.println("![DEBUG] Mauvais nombre d'arguments");
+
+      if (!(distance_ok && angle_ok)) {
+        Serial.print("![DEBUG] distance_ok = ");
+        Serial.println(distance_ok);
+        Serial.print("![DEBUG] angle_ok = ");
+        Serial.println(angle_ok);
+      }
+
+      if (arret_lidar < 2) {
+        Serial.print("![DEBUG] arret_lidar trop petit : ");
+        Serial.println(arret_lidar);
+      }
+
       return;
     }
+
     float x = atof(argv[1]);
     float y = atof(argv[2]);
     newCommand = calculateMovement(x, y);
@@ -257,22 +300,21 @@ void asservCommandUSB(int argc, char **argv)
     }
     // goTo(newCommand);
     // newCommand.goto_ok = true;
-    newCommand.goto_ok = true;
-    commande_en_pause = GOTO;
+    
+    //commande_en_pause = GOTO;
     goTo(newCommand);
+    newCommand.goto_ok = true;
 
   }
   else if (!strcmp(argv[0], "rotate") && (distance_ok && angle_ok))
   {
     float angle_ = atof(argv[1]);
     newCommand = calculate_rotation(angle_);
-    newCommand.speed = 300;
-    // rotate(newCommand);
+    newCommand.speed = 500;
+    rotate(newCommand);
     // newCommand.rotate_ok = true;
     newCommand.rotate_ok = true;
-    commande_en_pause = ROTATE;
-    rotate(newCommand);
-
+    //commande_en_pause = ROTATE;
   }
   else if (!strcmp(argv[0], "moveof"))
   {
@@ -280,10 +322,6 @@ void asservCommandUSB(int argc, char **argv)
     if (argc < 2 || !(distance_ok && angle_ok) || arret_lidar < 2)
     {
       Serial.println("Erreur");
-      // if (argc<2)Serial.println("Erreur argc");
-      // if (distance_ok)Serial.println("Erreur distance_ok");
-      // if (angle_ok)Serial.println("Erreur angle_ok");
-      // if (arret_lidar <2 )Serial.println("Erreur arret_lidar");
       return;
     }
     float distance_ = atof(argv[1]);
@@ -292,17 +330,23 @@ void asservCommandUSB(int argc, char **argv)
     {
       newCommand.speed = atof(argv[2]);
     }
-    // moveOf(newCommand);
+    moveOf(newCommand);
     newCommand.goto_ok = true;
     newCommand.moveof_ok = true;
-    commande_en_pause = MOVEOF;
-    moveOf(newCommand);
+    //commande_en_pause = MOVEOF;
 
   }
   else if (!strcmp(argv[0], "stopmove"))
   {
+    Serial.println("![DEBUG] stopmove reçu");
     arret_lidar = 0;
     obstacle_detection();
+
+    stop_now = true;
+    Output_PID_vitesse_G = 0;
+    Output_PID_vitesse_D = 0;
+    Serial.println("![DEBUG] stop_now = true");
+
   }
   else if (!strcmp(argv[0], "restartmove"))
   {
@@ -350,8 +394,7 @@ void asservCommandUSB(int argc, char **argv)
         Serial.println(y);
     }
   }
-
-
+ 
 }
 /*************************************/
 /*************************************/

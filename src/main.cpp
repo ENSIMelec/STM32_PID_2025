@@ -64,8 +64,8 @@ int arret_lidar = 2; // 0 = arret en cours, 1 = arreter, 2 = reprise possible du
 int16_t last_encGauche = 0;                           // sauvegarde de la position de l'encodeur gauche
 int16_t last_encDroit = 0;                            // sauvegarde de la position de l'encodeur droit
 
-int16_t encGauche_depart = 0;  // [MODIF] ticks init gauche
-int16_t encDroit_depart = 0;   // [MODIF] ticks init droit
+// int16_t encGauche_depart = 0;  // [MODIF] ticks init gauche
+// int16_t encDroit_depart = 0;   // [MODIF] ticks init droit
 
 Encoder encGauche(CodGB, CodGA, TIM3, HALFQUAD, 250); // Pour plus de précision utiliser FULLQUAD (2x plus de ticks)
 Encoder encDroit(CodDB, CodDA, TIM2, HALFQUAD, 250);  //
@@ -118,7 +118,7 @@ PID PID_angle(&angle, &Output_PID_angle, &cmd_angle, dt, Kp_angle, Ki_angle, Kd_
 PID PID_distance(&distance, &Output_PID_distance, &cmd_distance, dt, Kp_distance, Ki_distance, Kd_distance, DIRECT);
 /*************************************/
 
-TypeCommande commande_en_pause = AUCUNE;
+//TypeCommande commande_en_pause = AUCUNE;
 
 
 /********************************************/
@@ -222,12 +222,12 @@ void loop()
     send_new_command_available = false;
   }
 
-  if (Serial.available())
-    {
-        // Serial.println("[DEBUG] Donnée série détectée !");
-        // Serial.flush();  // Pour s'assurer que ce message arrive bien
-        serialEvent();   // Appel obligatoire pour lire les commandes (ex: stopmove, restartmove)
-    }
+  // if (Serial.available())
+  //   {
+  //       // Serial.println("[DEBUG] Donnée série détectée !");
+  //       // Serial.flush();  // Pour s'assurer que ce message arrive bien
+  //       serialEvent();   // Appel obligatoire pour lire les commandes (ex: stopmove, restartmove)
+  //   }
 }
 /*************************************/
 /*************************************/
