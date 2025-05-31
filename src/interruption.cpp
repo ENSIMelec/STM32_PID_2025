@@ -265,16 +265,16 @@
 #include "Odometrie.h"
 #include <Arduino.h>
 #include "main.h"
-#include "move.h" // pour accéder à stop_now
 
 float epsilonDistance = 5;
 float epsilonAngle = PI / 180 * 2.5;
 unsigned int interrupt_tick = 0;
+extern bool stop_now_lidar;
 
 void Update_IT_callback(void)
 {
   /**** STOP GLOBAL SI stop_now == true ****/
-  if (stop_now)
+  if (stop_now_lidar)
   {
     Output_PID_angle = 0;
     Output_PID_distance = 0;
@@ -284,7 +284,7 @@ void Update_IT_callback(void)
     analogWrite(PWM1, 0);
     analogWrite(PWM2, 0);
 
-    Serial.println("![DEBUG] stop_now actif → interruption ignorée, moteurs arrêtés.");
+    Serial.println("![DEBUG] stop_now_lidar actif → interruption ignorée, moteurs arrêtés.");
     return;
   }
 

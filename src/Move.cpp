@@ -1,7 +1,7 @@
 #include "move.h"
 #include "Odometrie.h"
 
-bool stop_now = false;
+extern bool stop_now_lidar;
 
 /*********************************************************************************************************/
 /*************************Explication des fonction********************************************************/
@@ -70,7 +70,7 @@ calculateMovement(float targetX, float targetY)
 /****************************************************/
 bool goTo(MovementResult mov)
 {
-  if (stop_now) {
+  if (stop_now_lidar) {
     Output_PID_vitesse_G = 0;
     Output_PID_vitesse_D = 0;
     return false;
@@ -105,7 +105,7 @@ MovementResult calculate_rotation(float angle_need)
 /****************************************************/
 bool rotate(MovementResult mov)
 {
-  if (stop_now) {
+  if (stop_now_lidar) {
     Output_PID_vitesse_G = 0;
     Output_PID_vitesse_D = 0;
     return false;
@@ -139,7 +139,7 @@ MovementResult calculate_moveOf(float distance_)
 /****************************************************/
 bool moveOf(MovementResult mov)
 {
-  if (stop_now) {
+  if (stop_now_lidar) {
     Output_PID_vitesse_G = 0;
     Output_PID_vitesse_D = 0;
     return false;

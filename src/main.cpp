@@ -32,10 +32,15 @@ float angle_final = 0;
 /*****************************/
 
 /***********Etalonnage Encodeur 1m et 10 PI******/
-//float distance_encoder_gauche = 1000.0 / 5023.0;
-float distance_encoder_gauche = 1000.0 / 5077.2;
-float distance_encoder_droit = 1000.0 / 5004.0;
+//float distance_encoder_gauche = 1000.0 / 5023.0; #Kilian
 
+//Flo V1 debut coupe
+// float distance_encoder_gauche = 1000.0 / 5077.2;
+// float distance_encoder_droit = 1000.0 / 5004.0;
+
+//Flo V2 samedi coupe
+float distance_encoder_gauche = 1000.0 / 5112.2;
+float distance_encoder_droit = 1000.0 / 4977.2;
 /**************************************/
 
 /********Coef Vitesse ******/
@@ -55,6 +60,8 @@ float coefAngle = dt / empattementRoueCodeuse * correction_angle;
 /*****ETAT DEPLACEMENT************/
 bool distance_ok = false;
 bool angle_ok = false;
+bool stop_now_lidar = false;
+
 MovementResult newCommand;
 bool send_new_command_available = false;
 int arret_lidar = 2; // 0 = arret en cours, 1 = arreter, 2 = reprise possible du mouvement
@@ -221,6 +228,10 @@ void loop()
     Serial.flush();
     send_new_command_available = false;
   }
+  if (stop_now_lidar) {
+    Serial.println("![DEBUG STM32] Lidar actif → Moteurs stoppés");
+}
+
 
   // if (Serial.available())
   //   {

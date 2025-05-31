@@ -1,5 +1,12 @@
 #include "Communication.h"
 
+#include "move.h"
+
+MovementResult last_command;
+bool last_command_valid = false;
+
+extern bool stop_now_lidar;
+
 /*****Variabe pour la communication*****/
 char inputBuffer[1024] = "\0"; // Buffer pour stocker les données entrantes
 int sizeBuffer = 0;            // Taille du buffer
@@ -298,12 +305,11 @@ void asservCommandUSB(int argc, char **argv)
     {
       newCommand.speed = atof(argv[3]);
     }
-    // goTo(newCommand);
-    // newCommand.goto_ok = true;
-    
     //commande_en_pause = GOTO;
     goTo(newCommand);
     newCommand.goto_ok = true;
+    last_command = newCommand;
+    last_command_valid = true;
 
   }
   else if (!strcmp(argv[0], "rotate") && (distance_ok && angle_ok))
@@ -314,6 +320,8 @@ void asservCommandUSB(int argc, char **argv)
     rotate(newCommand);
     // newCommand.rotate_ok = true;
     newCommand.rotate_ok = true;
+    last_command = newCommand;
+    last_command_valid = true;
     //commande_en_pause = ROTATE;
   }
   else if (!strcmp(argv[0], "moveof"))
@@ -333,7 +341,9 @@ void asservCommandUSB(int argc, char **argv)
     moveOf(newCommand);
     newCommand.goto_ok = true;
     newCommand.moveof_ok = true;
-    //commande_en_pause = MOVEOF;
+
+    last_command = newCommand;
+    last_command_valid = true;
 
   }
   else if (!strcmp(argv[0], "stopmove"))
@@ -342,28 +352,69 @@ void asservCommandUSB(int argc, char **argv)
     arret_lidar = 0;
     obstacle_detection();
 
-    stop_now = true;
+    stop_now_lidar = true;
     Output_PID_vitesse_G = 0;
     Output_PID_vitesse_D = 0;
     Serial.println("![DEBUG] stop_now = true");
 
   }
   else if (!strcmp(argv[0], "restartmove"))
-  {
-    // Serial.print("[DEBUG] restartmove reçu avec arret_lidar = ");
-    // Serial.println(arret_lidar);
+{
     if (arret_lidar >= 2)
     {
-        // Serial.println("[DEBUG] Condition remplie");
-        after_obstacle_detection();
-        arret_lidar = 0;  // pour réinitialiser l’état
-    }
-    else
-    {
-        // Serial.println("[DEBUG] Trop tôt pour reprendre (arret_lidar < 2)");
-    }
+        stop_now_lidar = false;
+        Serial.println("![DEBUG] stop_now désactivé");
 
-  }else if (!strcmp(argv[0], "resetticks"))
+        if (last_command_valid && distance_ok && angle_ok) {
+            if (last_command.moveof_ok) {
+                moveOf(last_command);
+                Serial.println("![DEBUG] relance de moveof");
+                newCommand.goto_ok = true;
+                newCommand.moveof_ok = true;
+            } else if (last_command.rotate_ok) {
+                rotate(last_command);
+                Serial.println("![DEBUG] relance de rotates");
+                newCommand.rotate_ok = true;
+            } else {
+                goTo(last_command);
+                Serial.println("![DEBUG] relance de goto");
+                newCommand.goto_ok = true;
+            }
+
+            Serial.println("![DEBUG] Reprise automatique de la commande.");
+            last_command_valid = false;  // éviter relance multiple
+        }
+
+        after_obstacle_detection();
+        arret_lidar = 0;
+    }
+}
+
+  // else if (!strcmp(argv[0], "restartmove"))
+  // {
+  //   // Serial.print("[DEBUG] restartmove reçu avec arret_lidar = ");
+  //   // Serial.println(arret_lidar);
+  //   if (arret_lidar >= 2)
+  //   {
+  //       stop_now_lidar = false;
+  //       Serial.println("![DEBUG] stop_now désactivé");
+
+  //       // Serial.println("[DEBUG] Condition remplie");
+  //       after_obstacle_detection();
+  //       arret_lidar = 0;  // pour réinitialiser l’état
+  //   }
+  //   else
+  //   {
+  //       // Serial.println("[DEBUG] Trop tôt pour reprendre (arret_lidar < 2)");
+  //   }
+  // }
+  else if (!strcmp(argv[0], "clear_stop"))
+{
+    stop_now_lidar = false;
+    Serial.println("![DEBUG] stop_now_lidar désactivé");
+}
+  
+  else if (!strcmp(argv[0], "resetticks"))
   {
     encDroit.resetTicks();
     encGauche.resetTicks();

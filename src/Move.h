@@ -11,7 +11,6 @@ extern PID PID_vitesse_D;
 extern PID PID_angle;
 extern PID PID_distance;
 
-extern bool stop_now;
 
 /*********************************************************************************************************/
 /*************************Explication des fonction********************************************************/
