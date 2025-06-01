@@ -38,10 +38,10 @@ float angle_final = 0;
 // float distance_encoder_gauche = 1000.0 / 5077.2;
 // float distance_encoder_droit = 1000.0 / 5004.0;
 
-//Flo V2 samedi coupe
+// //Flo V2 samedi coupe
 float distance_encoder_gauche = 1000.0 / 5112.2;
 float distance_encoder_droit = 1000.0 / 4977.2;
-/**************************************/
+// /**************************************/
 
 /********Coef Vitesse ******/
 float correction_vitesse = 1.032;

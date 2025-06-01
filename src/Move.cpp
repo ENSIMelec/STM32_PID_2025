@@ -45,22 +45,62 @@ extern bool stop_now_lidar;
 /****************************************************/
 /********CALCUL MOUVEMENT X Y************************/
 /****************************************************/
-MovementResult
-calculateMovement(float targetX, float targetY)
+
+// VERSION DU CALCULATEMOVEMENT AVANT TEST D'AMELIORATION POUR LA ROTATION DU GOTO
+// MovementResult
+// calculateMovement(float targetX, float targetY)
+// {
+//   MovementResult result;
+
+//   // Calcul de l'angle
+//   float deltaX = targetX - x;                                      // calcul de la différence de position en x
+//   float deltaY = targetY - y;                                      // calcul de la différence de position en y
+//   result.angle_initial = angle;                                    // angle initial = angle actuel
+//   result.distance_initial = distance;                              // distance initial = distance actuel
+//   result.angle_final = atan2(deltaY, deltaX);                      // calcul de l'angle final
+//   result.distance_final = sqrt(deltaX * deltaX + deltaY * deltaY); // calcul de la distance final
+//   // Serial.print("[GOTO] Distance demandée : ");
+//   // Serial.println(result.distance_final);
+//   return result;                                                   // retourne la structure
+// }
+
+#include <math.h> // Pour fmod et M_PI
+
+float normalize_angle(float angle) {
+  while (angle > M_PI) angle -= 2 * M_PI;
+  while (angle < -M_PI) angle += 2 * M_PI;
+  return angle;
+}
+
+MovementResult calculateMovement(float targetX, float targetY)
 {
   MovementResult result;
 
-  // Calcul de l'angle
-  float deltaX = targetX - x;                                      // calcul de la différence de position en x
-  float deltaY = targetY - y;                                      // calcul de la différence de position en y
-  result.angle_initial = angle;                                    // angle initial = angle actuel
-  result.distance_initial = distance;                              // distance initial = distance actuel
-  result.angle_final = atan2(deltaY, deltaX);                      // calcul de l'angle final
-  result.distance_final = sqrt(deltaX * deltaX + deltaY * deltaY); // calcul de la distance final
-  // Serial.print("[GOTO] Distance demandée : ");
-  // Serial.println(result.distance_final);
-  return result;                                                   // retourne la structure
+  // Calcul des écarts
+  float deltaX = targetX - x;
+  float deltaY = targetY - y;
+
+  result.angle_initial = angle; // angle actuel
+  result.distance_initial = distance;
+
+  // Angle absolu vers la cible
+  float absolute_target_angle = atan2(deltaY, deltaX);
+
+  // Delta d'angle à effectuer
+  float delta_angle = normalize_angle(absolute_target_angle - angle);
+
+  // Nouvel angle cible en prenant le chemin le plus court
+  result.angle_final = normalize_angle(angle + delta_angle);
+
+  // Distance à parcourir
+  result.distance_final = sqrt(deltaX * deltaX + deltaY * deltaY);
+
+  return result;
 }
+
+
+
+
 /****************************************************/
 /****************************************************/
 /****************************************************/
