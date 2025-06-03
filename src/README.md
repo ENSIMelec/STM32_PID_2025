@@ -1,4 +1,5 @@
-# Code Asservissement (ENSIM'ELEC 2024)
+# Code Asservissement (ENSIM'ELEC 2025)
+(README de l'année 2024)
 ## Introduction
 Ce code est créé pour les cartes STM32 NUCLEO-64 F446RE/F411RE. Il gére tous les déplacements et asservissements du robot ainsi que son odométrie. Il a été réalisé via Arduino grâce à la librarie STM32duino installable comme ceci: [STM32duino](https://github.com/stm32duino/Arduino_Core_STM32/wiki/Getting-Started).
 
